@@ -43,7 +43,7 @@ func main() {
 	if dsn == "" {
 		dsn = os.Getenv("DSN")
 		if dsn == "" {
-			log.Fatal("DSN environment variable not set, of the form \"delta/<password>@raptor.gns.cri.nz:1521/GNS\".")
+			log.Fatal("DSN environment variable not set, of the form \"<user>/<password>@<server>:<port>/<instance>\".")
 		}
 	}
 

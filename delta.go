@@ -1,47 +1,82 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
+	"encoding/json"
+	"flag"
+	"fmt"
 	_ "github.com/mattn/go-oci8"
-        "log"
-        "net/http"
-        "os"
-        "time"
+	"log"
+	"net/http"
+	"os"
+	"time"
 )
 
 var (
-        db *sql.DB
-        client *http.Client
+	db     *sql.DB
+	client *http.Client
 )
 
 func main() {
-        var err error
-        // TODO
-        var port string = "9999"
+	var err error
 
-        dsn := os.Getenv("DSN")
-        if dsn == "" {
-                log.Println("DSN environment variable not set, of the form \"\".")
-                log.Fatal(err)
-        }
+	// runtime settings
+	var verbose bool
+	flag.BoolVar(&verbose, "verbose", false, "make noise")
+	var server bool
+	flag.BoolVar(&server, "server", false, "run as a web service")
+	var port string = "9999"
+	flag.StringVar(&port, "port", "9999", "port to run the service on")
+	var timeout time.Duration
+	flag.DurationVar(&timeout, "timeout", 5.0*time.Second, "service timeout")
 
-        db, err = sql.Open("oci8", dsn)
+	var do_impact bool
+	flag.BoolVar(&do_impact, "impact", false, "output impact data")
+
+	// oracle connection details
+	var dsn string
+	flag.StringVar(&dsn, "dsn", "", "provide DSN connection string, overides env variable \"DSN\"")
+
+	flag.Parse()
+
+	if dsn == "" {
+		dsn = os.Getenv("DSN")
+		if dsn == "" {
+			log.Fatal("DSN environment variable not set, of the form \"delta/<password>@raptor.gns.cri.nz:1521/GNS\".")
+		}
+	}
+
+	db, err = sql.Open("oci8", dsn)
 	if err != nil {
-                log.Println("Unable to build SQL database connection")
-                log.Fatal(err)
+		log.Println("Unable to build SQL database connection")
+		log.Fatal(err)
 	}
-        defer db.Close()
+	defer db.Close()
 
-        if err = db.Ping(); err != nil {
-                log.Println("Unable to connect to the database connection")
+	if err = db.Ping(); err != nil {
+		log.Println("Unable to connect to the database connection")
 	}
 
-        timeout := time.Duration(5 * time.Second)
-        client = &http.Client{
-                Timeout: timeout,
-        }
+	if do_impact {
+		impacts := Impacts()
 
-        http.HandleFunc("/places", places)
+		b, err := json.Marshal(impacts)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-        log.Fatal(http.ListenAndServe(":"+port, nil))
+		fmt.Print(bytes.NewBuffer(b).String())
+	}
+
+	if server {
+		client = &http.Client{
+			Timeout: timeout,
+		}
+
+		http.HandleFunc("/impact", impact)
+
+		log.Fatal(http.ListenAndServe(":"+port, nil))
+	}
+
 }

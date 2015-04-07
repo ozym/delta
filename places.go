@@ -1,48 +1,51 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	_ "github.com/mattn/go-oci8"
-	"io"
-	"log"
-	"net/http"
 )
 
 type Place struct {
-	Name      string
-	Latitude  float32
-	Longitude float32
+	Name      string  `json:"Name"`
+	Latitude  float32 `json:"Latitude"`
+	Longitude float32 `json:"Longitude"`
 }
 
-func places(w http.ResponseWriter, r *http.Request) {
-	//var result string = ""
-	rows, err := db.Query("SELECT name, latitude, longitude FROM place ORDER by name")
+func PlacesConfig(indent bool) ([]byte, error) {
+	places, err := Places()
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	defer rows.Close()
 
+	if indent {
+		return json.MarshalIndent(places, "", "  ")
+	} else {
+		return json.Marshal(places)
+	}
+}
+
+func Places() (map[string]Place, error) {
 	var places map[string]Place
 
 	places = make(map[string]Place)
+
+	rows, err := db.Query("SELECT name, latitude, longitude FROM place ORDER by name")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
 	for rows.Next() {
 		var name string
 		var lat, lon float32
 		if err := rows.Scan(&name, &lat, &lon); err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 		places[name] = Place{name, lat, lon}
-		//result = result + fmt.Sprintf(" %s %g %g", name, lat, lon)
 	}
 	if err := rows.Err(); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	b, err := json.Marshal(places)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	io.WriteString(w, bytes.NewBuffer(b).String())
+	return places, nil
 }

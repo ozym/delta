@@ -45,6 +45,8 @@ func main() {
 	// output config files
 	var do_impact bool
 	flag.BoolVar(&do_impact, "impact", false, "output impact data")
+	var do_places bool
+	flag.BoolVar(&do_places, "places", false, "output places data")
 
 	// oracle connection details
 	var dsn string
@@ -72,6 +74,16 @@ func main() {
 
 	if do_impact {
 		config, err := ImpactConfig(indent)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = store(output, config)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	if do_places {
+		config, err := PlacesConfig(indent)
 		if err != nil {
 			log.Fatal(err)
 		}

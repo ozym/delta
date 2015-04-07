@@ -3,20 +3,31 @@ package main
 import (
 	"bytes"
 	"database/sql"
-	"encoding/json"
 	"flag"
 	"fmt"
 	_ "github.com/mattn/go-oci8"
 	"log"
-	"net/http"
 	"os"
-	"time"
 )
 
-var (
-	db     *sql.DB
-	client *http.Client
-)
+var db *sql.DB
+
+func store(output string, config []byte) error {
+	if output != "-" && output != "" {
+		f, err := os.Create(output)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		_, err = f.Write(config)
+		if err != nil {
+			return err
+		}
+	} else {
+		fmt.Print(bytes.NewBuffer(config).String())
+	}
+	return nil
+}
 
 func main() {
 	var err error
@@ -24,13 +35,14 @@ func main() {
 	// runtime settings
 	var verbose bool
 	flag.BoolVar(&verbose, "verbose", false, "make noise")
-	var server bool
-	flag.BoolVar(&server, "server", false, "run as a web service")
-	var port string = "9999"
-	flag.StringVar(&port, "port", "9999", "port to run the service on")
-	var timeout time.Duration
-	flag.DurationVar(&timeout, "timeout", 5.0*time.Second, "service timeout")
 
+	// where to store results
+	var output string
+	flag.StringVar(&output, "output", "-", "store to run the service on")
+	var indent bool
+	flag.BoolVar(&indent, "pretty", false, "produce indented json output")
+
+	// output config files
 	var do_impact bool
 	flag.BoolVar(&do_impact, "impact", false, "output impact data")
 
@@ -59,24 +71,14 @@ func main() {
 	}
 
 	if do_impact {
-		impacts := Impacts()
-
-		b, err := json.Marshal(impacts)
+		config, err := ImpactConfig(indent)
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		fmt.Print(bytes.NewBuffer(b).String())
-	}
-
-	if server {
-		client = &http.Client{
-			Timeout: timeout,
+		err = store(output, config)
+		if err != nil {
+			log.Fatal(err)
 		}
-
-		http.HandleFunc("/impact", impact)
-
-		log.Fatal(http.ListenAndServe(":"+port, nil))
 	}
 
 }

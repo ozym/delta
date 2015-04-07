@@ -1,0 +1,10 @@
+{
+	"ImportPath": "github.com/ozym/delta",
+	"GoVersion": "go1.3.3",
+	"Deps": [
+		{
+			"ImportPath": "github.com/mattn/go-oci8",
+			"Rev": "718709810d0436d62ac743f6c0606c2a825eddd8"
+		}
+	]
+}

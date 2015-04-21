@@ -1,7 +1,7 @@
 package main
 
 import (
-	//"fmt"
+	"fmt"
 	//	"bytes"
 	"encoding/json"
 	_ "github.com/mattn/go-oci8"
@@ -156,6 +156,23 @@ func CsdConfig(indent bool, models []string) ([]byte, error) {
 				if err != nil {
 					return nil, err
 				}
+				station, err := site.GetSeismicStation()
+				if err != nil {
+					return nil, err
+				}
+				if station.LongName == nil {
+					continue
+				}
+				network, err := station.GetNetwork()
+				if err != nil {
+					return nil, err
+				}
+				code := network.Code
+				if network.ExternalCode != nil {
+					code = *network.ExternalCode
+				}
+
+				//fmt.Println(site)
 				for _, c := range components {
 					orient, err := c.GetCompOrient()
 					if err != nil {
@@ -170,19 +187,33 @@ func CsdConfig(indent bool, models []string) ([]byte, error) {
 						if err != nil {
 							return nil, err
 						}
+						label, err := s.GetChannelLabel()
+						if err != nil {
+							return nil, err
+						}
+						if label == nil {
+							continue
+						}
+						srcname := fmt.Sprintf("%s_%s_%s_%s", code, station.StationId, site.Location, *label)
 						k := CsdStream{
+							Name:        *station.LongName,
 							SampleRate:  s.SampleRate,
 							Sensitivity: s.Sensitivity,
+							NetworkId:   code,
+							StationId:   station.StationId,
 							LocationId:  site.Location,
+							ChannelId:   *label,
+							Latitude:    site.Latitude,
+							Longitude:   site.Longitude,
+							Srcname:     srcname,
 						}
-						kk := []CsdStream{k}
+						v := []CsdStream{k}
 
 						_, ok := pairs[channel.PinNo]
 						if ok {
-							kk = append(pairs[channel.PinNo].Streams, k)
-							//	pairs[channel.PinNo].Streams = append(pairs[channel.PinNo].Streams, k)
+							v = append(pairs[channel.PinNo].Streams, k)
 						}
-						pairs[channel.PinNo] = CsdPair{ChannelNo: channel.PinNo, PinNo: orient.PinNo, Streams: kk}
+						pairs[channel.PinNo] = CsdPair{ChannelNo: channel.PinNo, PinNo: orient.PinNo, Streams: v}
 					}
 
 				}

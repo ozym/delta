@@ -120,7 +120,7 @@ func (i *InstalledSensor) GetSeismicSite() (*SeismicSite, error) {
 	id, err := i.GetSeismicSiteId()
 	if err != nil {
 		return nil, err
-	} else if id != nil {
+	} else if id == nil {
 		return nil, nil
 	}
 	return GetSeismicSite(*id)

@@ -34,7 +34,7 @@ func GetSeismicStation(id int64) (*SeismicStation, error) {
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(id).Scan(&s.DateClosed, &s.DateOpened, &s.FileReference, &s.Height, &s.Latitude, &s.LongName, &s.Longitude, &s.Notes, &s.StationId)
+	err = stmt.QueryRow(id).Scan(&s.Id, &s.DateClosed, &s.DateOpened, &s.FileReference, &s.Height, &s.Latitude, &s.LongName, &s.Longitude, &s.Notes, &s.StationId)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	} else if err != nil {

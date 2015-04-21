@@ -12,6 +12,8 @@ import (
 
 var db *sql.DB
 
+var CSD = []string{"CUSP3D SENSOR"}
+
 func store(output string, config []byte) error {
 	if output != "-" && output != "" {
 		f, err := os.Create(output)
@@ -47,6 +49,8 @@ func main() {
 	flag.BoolVar(&do_impact, "impact", false, "output impact data")
 	var do_places bool
 	flag.BoolVar(&do_places, "places", false, "output places data")
+	var do_csd bool
+	flag.BoolVar(&do_csd, "csd", false, "output csd data")
 
 	// oracle connection details
 	var dsn string
@@ -84,6 +88,37 @@ func main() {
 	}
 	if do_places {
 		config, err := PlacesConfig(indent)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = store(output, config)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	/*
+		m, err := GetEquipmentModels()
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(m)
+
+		mm, err := GetEquipmentModel(2)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(mm)
+
+		s, err := SeismicStreams()
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(s)
+	*/
+
+	if do_csd {
+		config, err := CsdConfig(indent, CSD)
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -96,6 +96,36 @@ func FindInstalledSensorsBySensorId(id int64) ([]InstalledSensor, error) {
 	return installs, nil
 }
 
+func (i *InstalledSensor) GetSeismicSiteId() (*int64, error) {
+	var id int64
+
+	p := "SELECT seismic_site_id FROM installed_sensor WHERE installed_sensor_id = :installed_sensor_id"
+	stmt, err := db.Prepare(p)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(i.Id).Scan(&id)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	return &id, nil
+}
+
+func (i *InstalledSensor) GetSeismicSite() (*SeismicSite, error) {
+	id, err := i.GetSeismicSiteId()
+	if err != nil {
+		return nil, err
+	} else if id != nil {
+		return nil, nil
+	}
+	return GetSeismicSite(*id)
+}
+
 /*
 func GetEquipmentByModel(model string) ([]Equipment, error) {
 	var equipment []Equipment

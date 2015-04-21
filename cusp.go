@@ -11,9 +11,23 @@ import (
 	"time"
 )
 
+type CsdStream struct {
+	Name        string  `json:"name"`
+	Srcname     string  `json:"srcname"`
+	NetworkId   string  `json:"network_id"`
+	StationId   string  `json:"station_id"`
+	LocationId  string  `json:"location_id"`
+	ChannelId   string  `json:"channel_id"`
+	Latitude    float64 `json:"latitude"`
+	Longitude   float64 `json:"longitude"`
+	SampleRate  float64 `json:"sample_rate"`
+	Sensitivity float64 `json:"sensitivity"`
+}
+
 type CsdPair struct {
-	ChannelNo int64 `json:"channel_no"`
-	PinNo     int64 `json:"pin_no"`
+	ChannelNo int64       `json:"channel_no"`
+	PinNo     int64       `json:"pin_no"`
+	Streams   []CsdStream `json:"stream"`
 }
 
 /*
@@ -138,6 +152,10 @@ func CsdConfig(indent bool, models []string) ([]byte, error) {
 			var installs []CsdInstall
 			for _, i := range installed {
 				pairs := make(map[int64]CsdPair)
+				site, err := i.GetSeismicSite()
+				if err != nil {
+					return nil, err
+				}
 				for _, c := range components {
 					orient, err := c.GetCompOrient()
 					if err != nil {
@@ -152,10 +170,19 @@ func CsdConfig(indent bool, models []string) ([]byte, error) {
 						if err != nil {
 							return nil, err
 						}
-						_, ok := pairs[channel.PinNo]
-						if !ok {
-							pairs[channel.PinNo] = CsdPair{ChannelNo: channel.PinNo, PinNo: orient.PinNo}
+						k := CsdStream{
+							SampleRate:  s.SampleRate,
+							Sensitivity: s.Sensitivity,
+							LocationId:  site.Location,
 						}
+						kk := []CsdStream{k}
+
+						_, ok := pairs[channel.PinNo]
+						if ok {
+							kk = append(pairs[channel.PinNo].Streams, k)
+							//	pairs[channel.PinNo].Streams = append(pairs[channel.PinNo].Streams, k)
+						}
+						pairs[channel.PinNo] = CsdPair{ChannelNo: channel.PinNo, PinNo: orient.PinNo, Streams: kk}
 					}
 
 				}

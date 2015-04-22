@@ -24,10 +24,15 @@ func ImpactConfig(indent bool) ([]byte, error) {
 	}
 
 	if indent {
-		return json.MarshalIndent(impacts, "", "  ")
+		j, err := json.MarshalIndent(impacts, "", "  ")
+		if err != nil {
+			return nil, err
+		}
+		return append(j, '\n'), nil
 	} else {
 		return json.Marshal(impacts)
 	}
+
 }
 
 func Impacts() (map[string]Impact, error) {
@@ -79,27 +84,38 @@ func Impacts() (map[string]Impact, error) {
 
 		for rows.Next() {
 
-			var name string
+			var name *string
 			var lat, lon float32
 			var sta, loc, cha, net string
-			var ext string
+			var ext *string
 			var rate int32
 			var gain float32
 
 			if err := rows.Scan(&name, &lat, &lon, &sta, &loc, &cha, &net, &ext, &rate, &gain); err != nil {
 				return nil, err
 			}
+			if name == nil {
+				continue
+			}
+
 			q, ok := Q[rate]
 			if ok {
 				var srcname string
 
-				if ext != "" {
-					srcname = fmt.Sprintf("%s_%s_%s_%s", ext, sta, loc, cha)
+				if ext != nil {
+					srcname = fmt.Sprintf("%s_%s_%s_%s", *ext, sta, loc, cha)
 				} else {
 					srcname = fmt.Sprintf("%s_%s_%s_%s", net, sta, loc, cha)
 				}
 
-				impacts[srcname] = Impact{name, (float32)(rate), gain, q, lat, lon}
+				impacts[srcname] = Impact{
+					Name:      *name,
+					Rate:      (float32)(rate),
+					Gain:      gain,
+					Q:         q,
+					Latitude:  lat,
+					Longitude: lon,
+				}
 			}
 		}
 

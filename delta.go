@@ -97,26 +97,6 @@ func main() {
 		}
 	}
 
-	/*
-		m, err := GetEquipmentModels()
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(m)
-
-		mm, err := GetEquipmentModel(2)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(mm)
-
-		s, err := SeismicStreams()
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(s)
-	*/
-
 	if do_csd {
 		config, err := CsdConfig(indent, CSD)
 		if err != nil {

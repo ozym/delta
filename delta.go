@@ -49,6 +49,8 @@ func main() {
 	flag.BoolVar(&do_impact, "impact", false, "output impact data")
 	var do_places bool
 	flag.BoolVar(&do_places, "places", false, "output places data")
+	var do_stations bool
+	flag.BoolVar(&do_stations, "stations", false, "output stations data")
 	var do_csd bool
 	flag.BoolVar(&do_csd, "csd", false, "output csd data")
 
@@ -97,6 +99,16 @@ func main() {
 		}
 	}
 
+	if do_stations {
+		config, err := StationsConfig(indent)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = store(output, config)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 	if do_csd {
 		config, err := CsdConfig(indent, CSD)
 		if err != nil {

@@ -15,12 +15,12 @@ type SeismicStation struct {
 	Id            int64     `json:"seismic_station_id"`
 	DateClosed    time.Time `json:"date_closed"`
 	DateOpened    time.Time `json:"date_opened"`
-	FileReference *string   `json:"file_reference"`
+	FileReference *string   `json:"file_reference,omitempty"`
 	Height        float64   `json:"height"`
 	Latitude      float64   `json:"latitude"`
 	LongName      *string   `json:"long_name"`
 	Longitude     float64   `json:"longitude"`
-	Notes         *string   `json:"notes"`
+	Notes         *string   `json:"notes,omitempty"`
 	StationId     string    `json:"station_id"`
 }
 
@@ -44,45 +44,30 @@ func GetSeismicStation(id int64) (*SeismicStation, error) {
 	return &s, nil
 }
 
-/*
-func (s *Component) FindInstalledComponents() ([]InstalledComponent, error) {
-	return FindInstalledComponentsByComponentId(s.Id)
-}
+func ListSeismicStations() ([]SeismicStation, error) {
+	var stations []SeismicStation
 
-*/
-
-/*
-func FindComponentsBySensorId(id int64) ([]Component, error) {
-	var components []Component
-
-	p := "SELECT component_id FROM COMPONENT WHERE sensor_id = :sensor_id"
-
-	stmt, err := db.Prepare(p)
-	if err != nil {
-		return nil, err
-	}
-	defer stmt.Close()
-
-	rows, err := stmt.Query(id)
+	q := "SELECT seismic_station_id, date_closed, date_opened, file_reference, height, latitude, long_name, longitude, notes, station_id FROM SEISMIC_STATION"
+	rows, err := db.Query(q)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		c := Component{}
-		if err := rows.Scan(&c.Id); err != nil {
+		s := SeismicStation{}
+
+		if err := rows.Scan(&s.Id, &s.DateClosed, &s.DateOpened, &s.FileReference, &s.Height, &s.Latitude, &s.LongName, &s.Longitude, &s.Notes, &s.StationId); err != nil {
 			return nil, err
 		}
-		components = append(components, c)
+		stations = append(stations, s)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
-	return components, nil
+	return stations, nil
 }
-*/
 
 /*
 func (c *Component) FindSeismicStreams(start time.Time, stop time.Time) ([]SeismicStream, error) {

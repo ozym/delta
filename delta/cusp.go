@@ -5,6 +5,7 @@ import (
 	//	"bytes"
 	//"encoding/json"
 	_ "github.com/mattn/go-oci8"
+	"github.com/ozym/delta"
 	//	"io"
 	//	"log"
 	//	"net/http"
@@ -52,7 +53,7 @@ func CsdConfig(indent bool, models []string) ([]byte, error) {
 
 	for _, m := range models {
 
-		model, err := FindEquipmentModel(m)
+		model, err := delta.FindEquipmentModel(m)
 		if err != nil {
 			return nil, err
 		} else if model == nil {
@@ -66,7 +67,7 @@ func CsdConfig(indent bool, models []string) ([]byte, error) {
 			if e.SerialNumber == nil {
 				continue
 			}
-			sensor, err := FindSensorByEquipmentId(e.Id)
+			sensor, err := delta.FindSensorByEquipmentId(e.Id)
 			if err != nil {
 				return nil, err
 			}

@@ -31,6 +31,16 @@ func store(output string, config []byte) error {
 	return nil
 }
 
+var (
+	indent bool
+	etcd   bool
+)
+
+func init() {
+	flag.BoolVar(&indent, "pretty", false, "produce indented json output")
+	flag.BoolVar(&etcd, "etcd", false, "produce etcd formatted output")
+}
+
 func main() {
 	var err error
 
@@ -41,8 +51,6 @@ func main() {
 	// where to store results
 	var output string
 	flag.StringVar(&output, "output", "-", "store to run the service on")
-	var indent bool
-	flag.BoolVar(&indent, "pretty", false, "produce indented json output")
 
 	// output config files
 	var do_impact bool
@@ -100,7 +108,7 @@ func main() {
 	}
 
 	if do_stations {
-		config, err := StationsConfig(indent)
+		config, err := StationsConfig()
 		if err != nil {
 			log.Fatal(err)
 		}

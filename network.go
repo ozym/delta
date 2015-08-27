@@ -2,12 +2,8 @@ package delta
 
 import (
 	"database/sql"
-	//	"bytes"
-	//	"encoding/json"
+
 	_ "github.com/mattn/go-oci8"
-	//	"io"
-	//	"log"
-	//	"net/http"
 )
 
 type Network struct {
@@ -38,49 +34,3 @@ func GetNetwork(id int64) (*Network, error) {
 
 	return &n, nil
 }
-
-/*
-func (s *Component) FindInstalledComponents() ([]InstalledComponent, error) {
-	return FindInstalledComponentsByComponentId(s.Id)
-}
-
-*/
-
-/*
-func FindComponentsBySensorId(id int64) ([]Component, error) {
-	var components []Component
-
-	p := "SELECT component_id FROM COMPONENT WHERE sensor_id = :sensor_id"
-
-	stmt, err := db.Prepare(p)
-	if err != nil {
-		return nil, err
-	}
-	defer stmt.Close()
-
-	rows, err := stmt.Query(id)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		c := Component{}
-		if err := rows.Scan(&c.Id); err != nil {
-			return nil, err
-		}
-		components = append(components, c)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return components, nil
-}
-*/
-
-/*
-func (c *Component) FindSeismicStreams(start time.Time, stop time.Time) ([]SeismicStream, error) {
-	return FindSeismicStreamsByComponentId(c.Id, start, stop)
-}
-*/

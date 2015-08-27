@@ -3,13 +3,9 @@ package delta
 import (
 	"database/sql"
 	"fmt"
-	//	"bytes"
-	//	"encoding/json"
-	_ "github.com/mattn/go-oci8"
-	//	"io"
-	//	"log"
-	//	"net/http"
 	"time"
+
+	_ "github.com/mattn/go-oci8"
 )
 
 type SeismicStream struct {

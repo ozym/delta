@@ -2,13 +2,9 @@ package delta
 
 import (
 	"database/sql"
-	//	"bytes"
-	//	"encoding/json"
-	_ "github.com/mattn/go-oci8"
-	//	"io"
-	//	"log"
-	//	"net/http"
 	"time"
+
+	_ "github.com/mattn/go-oci8"
 )
 
 type Component struct {
@@ -34,33 +30,6 @@ func GetComponent(id int64) (*Component, error) {
 
 	return &c, nil
 }
-
-/*
-func FindComponentByEquipmentId(id int64) (*Component, error) {
-	s := Component{}
-
-	p := "SELECT sensor_id FROM SENSOR WHERE equipment_id = :equipment_id"
-	stmt, err := db.Prepare(p)
-	if err != nil {
-		return nil, err
-	}
-	defer stmt.Close()
-
-	err = stmt.QueryRow(id).Scan(&s.Id)
-	if err == sql.ErrNoRows {
-		return nil, nil
-	} else if err != nil {
-		return nil, err
-	}
-
-	return &s, nil
-}
-
-func (s *Component) FindInstalledComponents() ([]InstalledComponent, error) {
-	return FindInstalledComponentsByComponentId(s.Id)
-}
-
-*/
 
 func FindComponentsBySensorId(id int64) ([]Component, error) {
 	var components []Component

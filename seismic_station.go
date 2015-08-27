@@ -2,13 +2,9 @@ package delta
 
 import (
 	"database/sql"
-	//	"bytes"
-	//	"encoding/json"
-	_ "github.com/mattn/go-oci8"
-	//	"io"
-	//	"log"
-	//	"net/http"
 	"time"
+
+	_ "github.com/mattn/go-oci8"
 )
 
 type SeismicStation struct {
@@ -68,12 +64,6 @@ func ListSeismicStations() ([]SeismicStation, error) {
 
 	return stations, nil
 }
-
-/*
-func (c *Component) FindSeismicStreams(start time.Time, stop time.Time) ([]SeismicStream, error) {
-	return FindSeismicStreamsByComponentId(c.Id, start, stop)
-}
-*/
 
 func (s *SeismicStation) GetNetworkId() (*int64, error) {
 	var id int64

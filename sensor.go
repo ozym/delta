@@ -2,13 +2,8 @@ package delta
 
 import (
 	"database/sql"
-	//	"bytes"
-	//	"encoding/json"
+
 	_ "github.com/mattn/go-oci8"
-	//	"io"
-	//	"log"
-	//	"net/http"
-	//	"time"
 )
 
 type Sensor struct {
